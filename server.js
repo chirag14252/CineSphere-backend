@@ -56,6 +56,18 @@ app.get("/get-fav",(req,res)=>{
     })
 })
 
+//to delete the the data from the myFavourite Page.
+app.delete("/deleteFav",(req,res)=>{
+    const movie_id = req.body.movie_id;
+    WishListModal.deleteOne({movie_id:movie_id}).then((data,err)=>{
+     if(data){
+        return res.status(200).json({
+            message:"data deleted"
+        })
+     }
+    })
+
+})
 
 app.listen(port,()=>{
  console.log("server is running at"+port);
