@@ -1,20 +1,26 @@
 import express, { json } from "express";
 import WishListModal from "./models/wishListModal.js";
+import userModal from "./models/UserModel.js";
 import mongoose from "mongoose";
 import cors from "cors";
 import { config } from "dotenv";
+import wishShow from "./controller/WishList_Controller/wishShow.js";
+import wishAdd from "./controller/WishList_Controller/wishAdd.js";
+import deleteWish from "./controller/WishList_Controller/deleteWish.js";
+import Register from "./controller/WishList_Controller/Register.js";
 const app = express();
 const port = 3000;
 app.use(json());
 app.use(cors());
 config();
-const mongodb_url  = process.env.MONGODB_URL;
-mongoose.connect(`${mongodb_url}`).then(()=>{
+const mongodb_url = process.env.MONGODB_URL;
+
+mongoose.connect(`${mongodb_url}`).then(() => {
     console.log("database connected successfully");
 })
 
 
-app.get("/",(res)=>{
+app.get("/", (res) => {
     res.send("Api running Successfully");
 })
 
@@ -22,52 +28,21 @@ app.get("/",(res)=>{
 
 
 // for sending the data by cliking on add-favourites
-app.post("/fav",(req,res)=>{
-    const id  = req.body.movie_id;
-    const name = req.body.movie_name;
-    const poster = req.body.movie_poster;
-    WishListModal.create(
-     {
-        movie_id:id,
-        movie_name: name,
-        movie_poster:poster
-     }
-    ).then((data,err)=>{
-    if(err){
-       return res.status(500).json({
-        message:"server error"
-       })
-    }
-    if(data){
-        return res.status(201).json({
-         message:"favorite added successfully",
-         movie_Info:data
-        })
-    }
-    })
-})
+app.post("/fav", wishAdd);
 
 //for sending the data to Favourite Page
-app.get("/get-fav",(req,res)=>{
-    WishListModal.find().then((data,err)=>{
-       if(data){
-         res.send(data);
-       }
-    })
-})
+app.get("/get-fav", wishShow);
 
 //to delete the the data from the myFavourite Page.
-app.delete("/deleteFav",(req,res)=>{
-    const movie_id = req.body.movie_id;
-    WishListModal.deleteOne({"movie_id":movie_id}).then((data,err)=>{
-     if(data){
-        return res.status(200).json({
-            message:"data deleted"
-        })
-     }
-    })
-})
+app.delete("/deleteFav", deleteWish);
 
-app.listen(port,()=>{
- console.log("server is running at"+port);
+
+// for creating registeration of user
+app.post("/register",Register);
+
+
+//for login
+// app.get("/login");
+app.listen(port, () => {
+    console.log("server is running at" + port);
 })
